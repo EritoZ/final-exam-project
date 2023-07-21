@@ -86,7 +86,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         default='3'
     )
 
-    slug = autoslug.AutoSlugField(populate_from='username', null=True)
+    slug = autoslug.AutoSlugField(populate_from='username')
 
     is_staff = models.BooleanField(
         ("staff status"),
@@ -108,11 +108,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
-
-    def save(self, *args, **kwargs):
-        self.slug = self.username
-
-        return super().save(*args, **kwargs)
 
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
