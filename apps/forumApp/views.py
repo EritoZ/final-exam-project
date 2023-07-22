@@ -39,6 +39,12 @@ def create_post(request):
     return render(request, 'posts/create-post-page.html', context={'form': form})
 
 
+class PostDetailsView(generic.DetailView):
+    template_name = 'posts/details-post-page.html'
+    model = models.Post
+    slug_url_kwarg = 'slug_post'
+
+
 class CommunityCreateView(mixins.LoginRequiredMixin, custom_mixins.OwnerAddMixin, generic.CreateView):
     template_name = 'communities/create-community-page.html'
     model = models.ReddemCommunity
@@ -55,6 +61,7 @@ class CommunityCreateView(mixins.LoginRequiredMixin, custom_mixins.OwnerAddMixin
 class CommunityHomeView(generic.DetailView):
     template_name = 'communities/home-community-page.html'
     model = models.ReddemCommunity
+    slug_url_kwarg = 'slug_community'
 
     def get_context_data(self, **kwargs):
         kwargs['posts'] = models.Post.objects.filter(community=self.object).order_by('-id')
@@ -67,16 +74,15 @@ class CommunityHomeView(generic.DetailView):
 
 
 @login_required
-def community_join(request, slug):
-    current_community = get_object_or_404(klass=models.ReddemCommunity, slug=slug)
+def community_join(request, slug_community):
+    current_community = get_object_or_404(klass=models.ReddemCommunity, slug=slug_community)
     models.UserJoinedCommunities.objects.create(community=current_community, user=request.user)
 
-    return redirect('home community', slug=slug)
+    return redirect('home community', slug=slug_community)
 
 
-# TODO:
-def community_leave(request, slug):
-    current_community = get_object_or_404(klass=models.ReddemCommunity, slug=slug)
+def community_leave(request, slug_community):
+    current_community = get_object_or_404(klass=models.ReddemCommunity, slug=slug_community)
     models.UserJoinedCommunities.objects.filter(community=current_community, user=request.user.pk).delete()
 
-    return redirect('home community', slug=slug)
+    return redirect('home community', slug=slug_community)

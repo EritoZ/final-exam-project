@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 
+{% block title %}
+    Create Post |
+{% endblock %}
+
 {% block content %}
     <form method="post" action="{% url 'submit post' %}" enctype="multipart/form-data">
     {{ form.as_p }}

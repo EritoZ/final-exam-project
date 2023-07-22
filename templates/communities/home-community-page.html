@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 
+{% block title %}
+    {{ object.title }} |
+{% endblock %}
+
 {% block content %}
     <img src="/media/{{ object.image }}" width="100" height="100" alt="img8">
     <h1>
@@ -9,18 +13,18 @@
     {{ members_count }} members
 
     {% if not user_joined %}
-    <a href="{% url 'join community' slug=object.slug %}">
+    <a href="{% url 'join community' slug_community=object.slug %}">
         Join
     </a>
     {% elif user_joined %}
-    <a href="{% url 'leave community' slug=object.slug %}">
+    <a href="{% url 'leave community' slug_community=object.slug %}">
         Leave
     </a>
     {% endif %}
 
     {% for post in posts %}
     <div class="post">
-        <a href="#">
+        <a href="{% url 'details post' slug_community=object.slug slug_post=post.slug %}">
             <h5>{{ post.title }}</h5>
             <span>
                 <a href="#">{{ post.owner }}</a>

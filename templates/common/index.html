@@ -7,11 +7,11 @@
 
     {% for post in community_posts %}
     <div class="post">
-        <a href="#">
+        <a href="{% url 'details post' slug_community=post.community.slug slug_post=post.slug %}">
             <h5>{{ post.title }}</h5>
             <span>
-                <a href="{% url 'home community' slug=post.community.slug %}">r/{{ post.community }}</a>
-                <a href="#">{{ post.owner }}</a>
+                <a href="{% url 'home community' slug_community=post.community.slug %}">r/{{ post.community }}</a>
+                {{ post.owner }}
             </span>
             <br>
             {% if post.image %}
