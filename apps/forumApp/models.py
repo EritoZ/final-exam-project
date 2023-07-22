@@ -44,7 +44,7 @@ class UserJoinedCommunities(models.Model):
 # Create your models here.
 class Post(models.Model):
     community = models.ForeignKey(
-        to=UserJoinedCommunities,
+        to=ReddemCommunity,
         on_delete=models.SET_NULL,
         null=True
     )

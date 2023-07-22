@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>
-        {{ object.title }}
-    </h1>
+        <img src="/media/{{ object.image }}" width="100" height="100" alt="img8">
+        <h1>
+            {{ object.title }}
+        </h1>
+
 
     {% if not request.user == object.owner or not user_joined %}
     <a href="{% url '#' %}">

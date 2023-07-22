@@ -15,8 +15,6 @@ class CreatePostForm(forms.ModelForm):
         fields = ('community', 'title', 'image', 'description')
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        self.user = kwargs.get('user', None)
-
-        if self.user:
-            self.fields['community'].queryset = models.UserJoinedCommunities.objects.filter(user=self.user)
+        self.fields['community'].queryset = models.ReddemCommunity.objects.filter(userjoinedcommunities__user=self.user)

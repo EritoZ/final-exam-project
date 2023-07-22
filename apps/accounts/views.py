@@ -12,11 +12,15 @@ User = get_user_model()
 # Create your views here.
 
 class RegisterView(generic.CreateView):
-    template_name = 'accounts/register-page.html'
+    template_name = 'account/register-page.html'
     model = User
     form_class = forms.UserCreateForm
     success_url = reverse_lazy('index')
 
 
 class LoginView(auth_views.LoginView):
-    template_name = 'accounts/login-page.html'
+    template_name = 'account/login-page.html'
+
+
+class LogoutView(auth_views.LogoutView):
+    pass
