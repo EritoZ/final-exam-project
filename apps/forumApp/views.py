@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model, mixins
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views import generic
 
@@ -57,7 +57,26 @@ class CommunityHomeView(generic.DetailView):
     model = models.ReddemCommunity
 
     def get_context_data(self, **kwargs):
-        kwargs['posts'] = models.Post.objects.filter(slug=self.object.slug).order_by('-id')
-        kwargs['user_joined'] = models.UserJoinedCommunities.objects.filter(user=self.request.user,
+        kwargs['posts'] = models.Post.objects.filter(community=self.object).order_by('-id')
+        kwargs['user_joined'] = models.UserJoinedCommunities.objects.filter(user=self.request.user.pk,
                                                                             community=self.object).exists()
+
+        kwargs['members_count'] = models.UserJoinedCommunities.objects.filter(community=self.object).count()
+
         return super().get_context_data(**kwargs)
+
+
+@login_required
+def community_join(request, slug):
+    current_community = get_object_or_404(klass=models.ReddemCommunity, slug=slug)
+    models.UserJoinedCommunities.objects.create(community=current_community, user=request.user)
+
+    return redirect('home community', slug=slug)
+
+
+# TODO:
+def community_leave(request, slug):
+    current_community = get_object_or_404(klass=models.ReddemCommunity, slug=slug)
+    models.UserJoinedCommunities.objects.filter(community=current_community, user=request.user.pk).delete()
+
+    return redirect('home community', slug=slug)
