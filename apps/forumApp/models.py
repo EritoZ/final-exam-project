@@ -18,18 +18,24 @@ class ReddemCommunity(models.Model):
     owner = models.ForeignKey(
         to=User,
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        related_name='owner'
     )
 
     slug = AutoSlugField(
         populate_from='title'
     )
 
+    members = models.ManyToManyField(
+        to=User,
+        through='ReddemCommunityMembers'
+    )
+
     def __str__(self):
         return self.title
 
 
-class UserJoinedCommunities(models.Model):
+class ReddemCommunityMembers(models.Model):
     user = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE
@@ -73,6 +79,8 @@ class Post(models.Model):
         populate_from='title'
     )
 
+    date_made = models.DateTimeField(auto_now_add=True)
+
 
 class Comment(models.Model):
     comment = models.CharField(
@@ -80,6 +88,24 @@ class Comment(models.Model):
     )
 
     commented_post = models.ForeignKey(
+        to=Post,
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    owner = models.ForeignKey(
+        to=User,
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    date_made = models.DateTimeField(auto_now_add=True)
+
+
+class LikesAndDislikes(models.Model):
+    liked = models.BooleanField()
+
+    liked_post = models.ForeignKey(
         to=Post,
         on_delete=models.SET_NULL,
         null=True

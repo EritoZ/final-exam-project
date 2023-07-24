@@ -5,11 +5,20 @@ User = get_user_model()
 
 
 class BaseMeta:
+    model = User
     exclude = '__all__'
     fields = ('username', 'first_name', 'last_name', 'email')
 
 
 class UserCreateForm(auth_forms.UserCreationForm):
     class Meta(BaseMeta):
-        model = User
+        pass
 
+
+class UserEditForm(auth_forms.UserChangeForm):
+    class Meta(BaseMeta):
+        fields = ('first_name', 'last_name', 'gender')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields.pop('password')

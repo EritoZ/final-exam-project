@@ -79,7 +79,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField("email address", blank=True, unique=True)
 
-    profile_image = models.ImageField("profile image", upload_to='profile images', blank=True)
+    profile_image = models.ImageField("profile image", upload_to='profile images', blank=True, null=True)
 
     gender = models.CharField(
         choices=genders,

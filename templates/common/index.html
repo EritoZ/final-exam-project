@@ -11,13 +11,15 @@
             <h5>{{ post.title }}</h5>
             <span>
                 <a href="{% url 'home community' slug_community=post.community.slug %}">r/{{ post.community }}</a>
-                {{ post.owner }}
+                <a href="{% url 'profile details' slug=post.owner.slug %}">{{ post.owner }}</a>
+                {{ post.date_made|timesince }} ago
             </span>
             <br>
             {% if post.image %}
             <img src="/media/{{ post.image }}" height="150" width="200" alt="img8">
             {% endif %}
         </a>
+        <br>
     </div>
     {% endfor %}
 {% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ object.username }} |
+{% endblock %}
+
+{% block content %}
+
+
+    {% if object.profile_image %}
+        <p>Profile picture:<img src="/media/{{ object.profile_image }}" alt="img8"></p>
+    {% else %}
+        <p>Profile picture: No Image</p>
+    {% endif %}
+
+    <p>Username: {{ object.username }}</p>
+    <p>First Name: {{ object.first_name }}</p>
+    <p>Last Name: {{ object.last_name }}</p>
+    <p>Gender: {{ object.get_gender_display }}</p>
+    <p>Email: {{ object.email }}</p>
+
+    {% if request.user == object %}
+        <a href="{% url 'profile edit' slug=object.slug %}">Edit profile</a>
+        <a href="#">Change email</a>
+        <a href="#">Change password</a>
+    {% endif %}
+
+
+{% endblock %}

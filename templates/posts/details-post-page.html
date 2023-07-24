@@ -1,5 +1,47 @@
 {% extends 'base.html' %}
 
+
 {% block title %}
-    {{ object.title }}
+    {{ object.title }} |
+{% endblock %}
+
+{% block content %}
+    <div class="post">
+        <span>
+            <a href="{% url 'home community' slug_community=post.community.slug %}">r/{{ post.community }}</a>
+            <a href="{% url 'profile details' slug=post.owner.slug %}">{{ post.owner }}</a>
+            {{ post.date_made|timesince }} ago
+        </span>
+        <h4>{{ post.title }}</h4>
+        {% if post.image %}
+        <img src="/media/{{ post.image }}" height="500" width="500" alt="img8">
+        {% endif %}
+            <p>{{ post.description|wordwrap:100|linebreaksbr }}</p>
+        <br>
+        {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'details post' slug_community=post.community.slug slug_post=post.slug %}">
+            {{ form.as_p }}
+            {% csrf_token %}
+            <button type="submit">Comment</button>
+        </form>
+        {% else %}
+            <p>If you want to comment, please <a href="{% url 'login' %}">login</a>.</p>
+
+        {% endif %}
+    </div>
+    <br>
+    {% for comment in post_comments %}
+        <span>
+        <a href="{% url 'profile details' slug=comment.owner.slug %}">{{ comment.owner }}</a>
+        {{ comment.date_made|timesince }} ago
+        </span>
+
+        {% if comment.owner == post.owner %}
+            <p class="original poster">Post owner</p>
+        {% endif %}
+
+        <div class="comment">
+            <p>{{ comment.comment }}</p>
+        </div>
+    {% endfor %}
 {% endblock %}

@@ -13,27 +13,29 @@
     {{ members_count }} members
 
     {% if not user_joined %}
-    <a href="{% url 'join community' slug_community=object.slug %}">
+    <a href="{% url 'join community' slug_community=reddemcommunity.slug %}">
         Join
     </a>
     {% elif user_joined %}
-    <a href="{% url 'leave community' slug_community=object.slug %}">
+    <a href="{% url 'leave community' slug_community=reddemcommunity.slug %}">
         Leave
     </a>
     {% endif %}
 
     {% for post in posts %}
-    <div class="post">
-        <a href="{% url 'details post' slug_community=object.slug slug_post=post.slug %}">
-            <h5>{{ post.title }}</h5>
-            <span>
-                <a href="#">{{ post.owner }}</a>
-            </span>
-            <br>
-            {% if post.image %}
-            <img src="/media/{{ post.image }}" height="150" width="200" alt="img8">
-            {% endif %}
-        </a>
-    </div>
+        <div class="post">
+            <a href="{% url 'details post' slug_community=reddemcommunity.slug slug_post=post.slug %}">
+                <h5>{{ post.title }}</h5>
+                <span>
+                    <a href="{% url 'profile details' slug=post.owner.slug %}">{{ post.owner }}</a>
+                    {{ post.date_made|timesince }} ago
+                </span>
+                <br>
+                {% if post.image %}
+                <img src="/media/{{ post.image }}" height="150" width="200" alt="img8">
+                {% endif %}
+            </a>
+        </div>
+        <br>
     {% endfor %}
 {% endblock %}
