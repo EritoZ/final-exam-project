@@ -48,7 +48,12 @@ class PostDetailsAndCommentsView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         kwargs['form'] = forms.CreateCommentForm()
-        kwargs['post_comments'] = models.Comment.objects.filter(commented_post=self.object).order_by('-id')
+
+        post_comments = models.Comment.objects.filter(commented_post=self.object)
+
+        kwargs['post_comments'] = post_comments.order_by('-id')
+        kwargs['post_comments_amount'] = post_comments.count()
+
         return super().get_context_data(**kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -99,14 +104,14 @@ def community_join(request, slug_community):
     current_community = get_object_or_404(klass=models.ReddemCommunity, slug=slug_community)
     models.ReddemCommunityMembers.objects.create(community=current_community, user=request.user)
 
-    return redirect('home community', slug=slug_community)
+    return redirect('home community', slug_community=slug_community)
 
 
 def community_leave(request, slug_community):
     current_community = get_object_or_404(klass=models.ReddemCommunity, slug=slug_community)
     models.ReddemCommunityMembers.objects.filter(community=current_community, user=request.user.pk).delete()
 
-    return redirect('home community', slug=slug_community)
+    return redirect('home community', slug_community=slug_community)
 
 
 @login_required

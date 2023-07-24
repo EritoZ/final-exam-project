@@ -16,14 +16,15 @@
         {% if post.image %}
         <img src="/media/{{ post.image }}" height="500" width="500" alt="img8">
         {% endif %}
-            <p>{{ post.description|wordwrap:100|linebreaksbr }}</p>
+        <p>{{ post.description|wordwrap:100|linebreaksbr }}</p>
         <br>
+        <p>{{ post_comments_amount }} comments.</p>
         {% if request.user.is_authenticated %}
-        <form method="post" action="{% url 'details post' slug_community=post.community.slug slug_post=post.slug %}">
-            {{ form.as_p }}
-            {% csrf_token %}
-            <button type="submit">Comment</button>
-        </form>
+            <form method="post" action="{% url 'details post' slug_community=post.community.slug slug_post=post.slug %}">
+                {{ form.as_p }}
+                {% csrf_token %}
+                <button type="submit">Comment</button>
+            </form>
         {% else %}
             <p>If you want to comment, please <a href="{% url 'login' %}">login</a>.</p>
 
