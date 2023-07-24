@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model, mixins
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy, reverse
-from django.utils import timezone
+from django.urls import reverse_lazy
 from django.views import generic
 
 from apps.forumApp import models, forms
@@ -73,7 +72,7 @@ class PostDetailsAndCommentsView(generic.DetailView):
 class CommunityCreateView(mixins.LoginRequiredMixin, custom_mixins.OwnerAddMixin, generic.CreateView):
     template_name = 'communities/create-community-page.html'
     model = models.ReddemCommunity
-    form_class = forms.ReddemCommunityForm
+    form_class = forms.CreateReddemCommunityForm
     success_url = reverse_lazy('index')
 
     def form_valid(self, form):

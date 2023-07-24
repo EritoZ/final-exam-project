@@ -8,7 +8,7 @@ class BaseMeta:
     fields = ...
 
 
-class ReddemCommunityForm(forms.ModelForm):
+class CreateReddemCommunityForm(forms.ModelForm):
     class Meta(BaseMeta):
         model = models.ReddemCommunity
         fields = ('image', 'title')
