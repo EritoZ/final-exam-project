@@ -175,10 +175,7 @@ def react(request, pk_post, liked: bool):
 
     previous_page = request.META.get('HTTP_REFERER')
 
-    if not found_reaction.exists():
-        models.LikesAndDislikes.objects.create(liked=liked, liked_post=found_post, owner=request.user)
-
-    else:
+    try:
         found_reaction = found_reaction.get()
 
         if found_reaction.liked == liked:
@@ -187,6 +184,9 @@ def react(request, pk_post, liked: bool):
         else:
             found_reaction.liked = liked
             found_reaction.save()
+
+    except models.LikesAndDislikes.DoesNotExist:
+        models.LikesAndDislikes.objects.create(liked=liked, liked_post=found_post, owner=request.user)
 
     if previous_page:
         return redirect(previous_page)
