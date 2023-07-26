@@ -171,12 +171,10 @@ def dislike(request, pk_post, slug_community, slug_post):
 def react(request, pk_post, liked: bool):
     found_post = models.Post.objects.get(pk=pk_post)
 
-    found_reaction = models.LikesAndDislikes.objects.filter(liked_post=found_post, owner=request.user)
-
     previous_page = request.META.get('HTTP_REFERER')
 
     try:
-        found_reaction = found_reaction.get()
+        found_reaction = models.LikesAndDislikes.objects.get(liked_post=found_post, owner=request.user)
 
         if found_reaction.liked == liked:
             found_reaction.delete()
