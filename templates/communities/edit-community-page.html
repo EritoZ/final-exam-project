@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Edit Community |
+{% endblock %}
+
+{% block content %}
+    <form method="post" action="{% url 'edit community' slug_community=object.slug %}" enctype="multipart/form-data">
+        {{ form.as_p }}
+        {% csrf_token %}
+        <button type="submit">Edit</button>
+    </form>
+{% endblock %}

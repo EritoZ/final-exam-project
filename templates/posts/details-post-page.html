@@ -18,9 +18,46 @@
         {% endif %}
         <p>{{ post.description|wordwrap:100|linebreaksbr }}</p>
         <br>
-        <p>{{ post_comments_amount }} comments.</p>
+
+        <div class="reaction-section">
+            <span>
+                {% if likes_and_dislikes_count == 1 %}
+                    {{ likes_and_dislikes_count }} like
+                {% else %}
+                    {{ likes_and_dislikes_count }} likes
+                {% endif %}
+
+                <a href="{{ post.like_post_absolute_url }}">
+                    {% if not liked %}
+                        Like
+                    {% else %}
+                        Liked
+                    {% endif %}
+                </a>
+                <a href="{{ post.dislike_post_absolute_url }}">
+                    {% if not disliked %}
+                        Dislike
+                    {% else %}
+                        Disliked
+                    {% endif %}
+                </a>
+            </span>
+        </div>
+
+        <span>
+            {% if post_comments_amount == 1 %}
+                {{ post_comments_amount }} comment
+            {% else %}
+                {{ post_comments_amount }} comments
+            {% endif %}
+
+            {% if request.user == post.owner %}
+                <a href="{{ post.delete_post_absolute_url }}">Delete post</a>
+            {% endif %}
+        </span>
+
         {% if request.user.is_authenticated %}
-            <form method="post" action="{% url 'details post' slug_community=post.community.slug slug_post=post.slug %}">
+            <form method="post" action="{{ post.details_post_absolute_url }}">
                 {{ form.as_p }}
                 {% csrf_token %}
                 <button type="submit">Comment</button>
@@ -33,8 +70,8 @@
     <br>
     {% for comment in post_comments %}
         <span>
-        <a href="{% url 'profile details' slug=comment.owner.slug %}">{{ comment.owner }}</a>
-        {{ comment.date_made|timesince }} ago
+            <a href="{% url 'profile details' slug=comment.owner.slug %}">{{ comment.owner }}</a>
+            {{ comment.date_made|timesince }} ago
         </span>
 
         {% if comment.owner == post.owner %}

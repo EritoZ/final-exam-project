@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block content %}
+
+    {% for community in object_list %}
+        <div class="community">
+            <a href="{{ community.home_community_absolute_url }}">
+                <span>
+                    <img src="/media/{{ community.image }}" width="90" height="90" alt="img8">
+
+                    r/{{ community.title }}
+                </span>
+            </a>
+        </div>
+
+    {% empty %}
+        <p>No results</p>
+    {% endfor %}
+
+{% endblock %}

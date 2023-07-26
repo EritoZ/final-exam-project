@@ -12,30 +12,64 @@
 
     {{ members_count }} members
 
-    {% if not user_joined %}
-    <a href="{% url 'join community' slug_community=reddemcommunity.slug %}">
-        Join
-    </a>
-    {% elif user_joined %}
-    <a href="{% url 'leave community' slug_community=reddemcommunity.slug %}">
-        Leave
-    </a>
+    {% if request.user == reddemcommunity.owner %}
+        <a href="{{ reddemcommunity.edit_community_absolute_url }}">Edit</a>
     {% endif %}
 
-    {% for post in posts %}
+    {% if not user_joined %}
+        <a href="{{ reddemcommunity.join_community_absolute_url }}">
+            Join
+        </a>
+    {% else %}
+        <a href="{{ reddemcommunity.leave_community_absolute_url }}">
+            Leave
+        </a>
+    {% endif %}
+
+    {% for post in community_posts %}
         <div class="post">
-            <a href="{% url 'details post' slug_community=reddemcommunity.slug slug_post=post.slug %}">
-                <h5>{{ post.title }}</h5>
-                <span>
-                    <a href="{% url 'profile details' slug=post.owner.slug %}">{{ post.owner }}</a>
-                    {{ post.date_made|timesince }} ago
-                </span>
-                <br>
-                {% if post.image %}
-                <img src="/media/{{ post.image }}" height="150" width="200" alt="img8">
+        <a href="{{ post.details_post_absolute_url }}">
+            <h5>{{ post.title }}</h5>
+        </a>
+
+        <div class="reaction-section">
+            <span>
+                {% if post.likes_and_dislikes_count == 1 %}
+                    {{ post.likes_and_dislikes_count }} like
+                {% else %}
+                    {{ post.likes_and_dislikes_count }} likes
                 {% endif %}
-            </a>
+
+                <a href="{{ post.like_post_absolute_url }}">
+                    {% if not post.liked %}
+                        Like
+                    {% else %}
+                        Liked
+                    {% endif %}
+                </a>
+                <a href="{{ post.dislike_post_absolute_url }}">
+                    {% if not post.disliked %}
+                        Dislike
+                    {% else %}
+                        Disliked
+                    {% endif %}
+                </a>
+            </span>
         </div>
+        <br>
+        <span>
+            <a href="{% url 'profile details' slug=post.owner.slug %}">{{ post.owner }}</a>
+            {{ post.date_made|timesince }} ago
+        </span>
+        <br>
+
+        {% if post.image %}
+            <a href="{{ post.details_post_absolute_url }}">
+                <img src="/media/{{ post.image }}" height="150" width="200" alt="img8">
+            </a>
+        {% endif %}
+        <br>
+    </div>
         <br>
     {% endfor %}
 {% endblock %}

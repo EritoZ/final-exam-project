@@ -1,24 +1,50 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <label>
-        <input placeholder="Search Reddem">
-    </label>
 
     {% for post in community_posts %}
     <div class="post">
-        <a href="{% url 'details post' slug_community=post.community.slug slug_post=post.slug %}">
+        <a href="{{ post.details_post_absolute_url }}">
             <h5>{{ post.title }}</h5>
-            <span>
-                <a href="{% url 'home community' slug_community=post.community.slug %}">r/{{ post.community }}</a>
-                <a href="{% url 'profile details' slug=post.owner.slug %}">{{ post.owner }}</a>
-                {{ post.date_made|timesince }} ago
-            </span>
-            <br>
-            {% if post.image %}
-            <img src="/media/{{ post.image }}" height="150" width="200" alt="img8">
-            {% endif %}
         </a>
+
+        <div class="reaction-section">
+            <span>
+                {% if post.likes_and_dislikes_count == 1 %}
+                    {{ post.likes_and_dislikes_count }} like
+                {% else %}
+                    {{ post.likes_and_dislikes_count }} likes
+                {% endif %}
+
+                <a href="{{ post.like_post_absolute_url }}">
+                    {% if not post.liked %}
+                        Like
+                    {% else %}
+                        Liked
+                    {% endif %}
+                </a>
+                <a href="{{ post.dislike_post_absolute_url }}">
+                    {% if not post.disliked %}
+                        Dislike
+                    {% else %}
+                        Disliked
+                    {% endif %}
+                </a>
+            </span>
+        </div>
+        <br>
+        <span>
+            <a href="{{ post.community.home_community_absolute_url }}">r/{{ post.community }}</a>
+            <a href="{% url 'profile details' slug=post.owner.slug %}">{{ post.owner }}</a>
+            {{ post.date_made|timesince }} ago
+        </span>
+        <br>
+
+        {% if post.image %}
+            <a href="{{ post.details_post_absolute_url }}">
+                <img src="/media/{{ post.image }}" height="150" width="200" alt="img8">
+            </a>
+        {% endif %}
         <br>
     </div>
     {% endfor %}

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model, mixins
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import generic
 
 from apps.forumApp import models, forms
@@ -10,8 +10,19 @@ from custom_code import custom_mixins
 User = get_user_model()
 
 
+class BasePostView:
+    model = models.Post
+    pk_url_kwarg = 'pk_post'
+    slug_url_kwarg = 'slug_post'
+
+
+class BaseCommunityView:
+    model = models.ReddemCommunity
+    slug_url_kwarg = 'slug_community'
+
+
 # Create your views here.
-class IndexView(generic.TemplateView):
+class IndexView(custom_mixins.ReactionsContextMixin, generic.TemplateView):
     template_name = 'common/index.html'
 
     def get_context_data(self, **kwargs):
@@ -33,19 +44,27 @@ def create_post(request):
 
     if request.method == 'POST' and form.is_valid():
         form.instance.owner = request.user
-        print(form.instance.image)
         form.save()
+
+        models.LikesAndDislikes.objects.create(liked=True, liked_post=form.instance, owner=request.user)
+
         return redirect('index')
 
     return render(request, 'posts/create-post-page.html', context={'form': form})
 
 
-class PostDetailsAndCommentsView(generic.DetailView):
+class PostDetailsAndCommentsView(BasePostView, generic.DetailView):
     template_name = 'posts/details-post-page.html'
-    model = models.Post
-    slug_url_kwarg = 'slug_post'
 
     def get_context_data(self, **kwargs):
+        likes = models.LikesAndDislikes.objects.filter(liked=True, liked_post=self.object)
+        dislikes = models.LikesAndDislikes.objects.filter(liked=False, liked_post=self.object)
+
+        kwargs['liked'] = likes.filter(owner=self.request.user.pk)
+        kwargs['disliked'] = dislikes.filter(owner=self.request.user.pk)
+
+        kwargs['likes_and_dislikes_count'] = likes.count() - dislikes.count()
+
         kwargs['form'] = forms.CreateCommentForm()
 
         post_comments = models.Comment.objects.filter(commented_post=self.object)
@@ -69,9 +88,16 @@ class PostDetailsAndCommentsView(generic.DetailView):
         return render(request, self.template_name)
 
 
+class PostDeleteView(BasePostView, generic.DeleteView):
+    template_name = 'posts/delete-post-page.html'
+
+    def get_success_url(self):
+        return reverse('profile details', kwargs={'slug': self.request.user.slug})
+
+
 class CommunityCreateView(mixins.LoginRequiredMixin, custom_mixins.OwnerAddMixin, generic.CreateView):
     template_name = 'communities/create-community-page.html'
-    model = models.ReddemCommunity
+    model = BaseCommunityView.model
     form_class = forms.CreateReddemCommunityForm
     success_url = reverse_lazy('index')
 
@@ -82,13 +108,24 @@ class CommunityCreateView(mixins.LoginRequiredMixin, custom_mixins.OwnerAddMixin
         return result
 
 
-class CommunityHomeView(generic.DetailView):
+class CommunitySearchView(BaseCommunityView, generic.ListView):
+    template_name = 'communities/search-community-page.html'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        search = self.request.GET.get('search', None)
+
+        queryset = queryset.filter(title__icontains=search)
+
+        return queryset
+
+
+class CommunityHomeView(BaseCommunityView, custom_mixins.ReactionsContextMixin, generic.DetailView):
     template_name = 'communities/home-community-page.html'
-    model = models.ReddemCommunity
-    slug_url_kwarg = 'slug_community'
 
     def get_context_data(self, **kwargs):
-        kwargs['posts'] = models.Post.objects.filter(community=self.object).order_by('-id')
+        kwargs['community_posts'] = models.Post.objects.filter(community=self.object).order_by('-id')
 
         kwargs['user_joined'] = models.ReddemCommunityMembers.objects.filter(user=self.request.user.pk,
                                                                              community=self.object).exists()
@@ -98,41 +135,60 @@ class CommunityHomeView(generic.DetailView):
         return super().get_context_data(**kwargs)
 
 
+class CommunityEditView(BaseCommunityView, generic.UpdateView):
+    template_name = 'communities/edit-community-page.html'
+    form_class = forms.EditReddemCommunityForm
+
+    def get_success_url(self):
+        return self.model.home_community_absolute_url(self.object)
+
+
 @login_required
 def community_join(request, slug_community):
-    current_community = get_object_or_404(klass=models.ReddemCommunity, slug=slug_community)
+    current_community = get_object_or_404(klass=models.ReddemCommunity, pk=slug_community)
     models.ReddemCommunityMembers.objects.create(community=current_community, user=request.user)
 
     return redirect('home community', slug_community=slug_community)
 
 
 def community_leave(request, slug_community):
-    current_community = get_object_or_404(klass=models.ReddemCommunity, slug=slug_community)
+    current_community = get_object_or_404(klass=models.ReddemCommunity, pk=slug_community)
     models.ReddemCommunityMembers.objects.filter(community=current_community, user=request.user.pk).delete()
 
     return redirect('home community', slug_community=slug_community)
 
 
 @login_required
-def find_emotion(request, pk, liked: True or False):
-    found_post = models.Post.objects.get(pk=pk)
+def like(request, pk_post, slug_community, slug_post):
+    return react(request, pk_post, True)
 
-    found_emotion = models.LikesAndDislikes.objects.filter(liked_post=found_post, owner=request.user).get()
+
+@login_required
+def dislike(request, pk_post, slug_community, slug_post):
+    return react(request, pk_post, False)
+
+
+def react(request, pk_post, liked: bool):
+    found_post = models.Post.objects.get(pk=pk_post)
+
+    found_reaction = models.LikesAndDislikes.objects.filter(liked_post=found_post, owner=request.user)
 
     previous_page = request.META.get('HTTP_REFERER')
 
-    if not found_emotion.exists():
-        models.LikesAndDislikes.objects.create(like=liked, liked_post=found_post, owner=request.user)
+    if not found_reaction.exists():
+        models.LikesAndDislikes.objects.create(liked=liked, liked_post=found_post, owner=request.user)
 
-    elif found_emotion.liked and liked:
-        found_emotion.delete()
+    else:
+        found_reaction = found_reaction.get()
 
-    elif found_emotion.liked and not liked:
-        pass
+        if found_reaction.liked == liked:
+            found_reaction.delete()
+
+        else:
+            found_reaction.liked = liked
+            found_reaction.save()
 
     if previous_page:
         return redirect(previous_page)
 
     return redirect('index')
-
-

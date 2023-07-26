@@ -2,14 +2,14 @@ import autoslug
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core import validators
-from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
+from django.db import models as db_models
+from django.contrib.auth import models as auth_models
 from django.utils import timezone
 
 
 # Create your models here.
 
-class UserManager(BaseUserManager):
+class UserManager(auth_models.BaseUserManager):
     use_in_migrations = True
 
     def _create_user(self, username, email, password, **extra_fields):
@@ -42,7 +42,7 @@ class UserManager(BaseUserManager):
         return self._create_user(username, email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(auth_models.AbstractBaseUser, auth_models.PermissionsMixin):
     genders = (
         ('1', 'Male'),
         ('2', 'Female'),
@@ -51,7 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     username_validator = UnicodeUsernameValidator()
 
-    username = models.CharField(
+    username = db_models.CharField(
         "username",
         max_length=150,
         unique=True,
@@ -63,37 +63,37 @@ class User(AbstractBaseUser, PermissionsMixin):
             "unique": "A user with that username already exists.",
         },
     )
-    first_name = models.CharField(
+    first_name = db_models.CharField(
         "first name",
         max_length=30,
         validators=[validators.MinLengthValidator(2)],
         blank=True
     )
 
-    last_name = models.CharField(
+    last_name = db_models.CharField(
         "last name",
         max_length=30,
         validators=[validators.MinLengthValidator(2)],
         blank=True
     )
 
-    email = models.EmailField("email address", blank=True, unique=True)
+    email = db_models.EmailField("email address", blank=True, unique=True)
 
-    profile_image = models.ImageField("profile image", upload_to='profile images', blank=True, null=True)
+    profile_image = db_models.ImageField("profile image", upload_to='profile images', blank=True, null=True)
 
-    gender = models.CharField(
+    gender = db_models.CharField(
         choices=genders,
         default='3'
     )
 
     slug = autoslug.AutoSlugField(populate_from='username')
 
-    is_staff = models.BooleanField(
+    is_staff = db_models.BooleanField(
         ("staff status"),
         default=False,
         help_text=("Designates whether the user can log into this admin site."),
     )
-    is_active = models.BooleanField(
+    is_active = db_models.BooleanField(
         "active",
         default=True,
         help_text=(
@@ -101,7 +101,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             "Unselect this instead of deleting accounts."
         ),
     )
-    date_joined = models.DateTimeField(("date joined"), default=timezone.now)
+    date_joined = db_models.DateTimeField(("date joined"), default=timezone.now)
 
     objects = UserManager()
 

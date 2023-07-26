@@ -14,6 +14,12 @@ class CreateReddemCommunityForm(forms.ModelForm):
         fields = ('image', 'title')
 
 
+class EditReddemCommunityForm(forms.ModelForm):
+    class Meta(BaseMeta):
+        model = models.ReddemCommunity
+        fields = ('image',)
+
+
 class CreatePostForm(forms.ModelForm):
     class Meta(BaseMeta):
         model = models.Post

@@ -1,11 +1,13 @@
 from autoslug import AutoSlugField
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.urls import reverse
+from custom_code import custom_mixins
 
 User = get_user_model()
 
 
-class ReddemCommunity(models.Model):
+class ReddemCommunity(custom_mixins.GetAbsoluteUrlMixin, models.Model):
     image = models.ImageField(
         upload_to='CommunityImages'
     )
@@ -31,6 +33,21 @@ class ReddemCommunity(models.Model):
         through='ReddemCommunityMembers'
     )
 
+    def pk_and_slug_url_kwargs(self):
+        return {'slug_community': self.slug}
+
+    def home_community_absolute_url(self):
+        return self.get_absolute_url('home community', self.pk_and_slug_url_kwargs())
+
+    def edit_community_absolute_url(self):
+        return self.get_absolute_url('edit community', self.pk_and_slug_url_kwargs())
+
+    def join_community_absolute_url(self):
+        return self.get_absolute_url('join community', self.pk_and_slug_url_kwargs())
+
+    def leave_community_absolute_url(self):
+        return self.get_absolute_url('leave community', self.pk_and_slug_url_kwargs())
+
     def __str__(self):
         return self.title
 
@@ -48,7 +65,7 @@ class ReddemCommunityMembers(models.Model):
 
 
 # Create your models here.
-class Post(models.Model):
+class Post(custom_mixins.GetAbsoluteUrlMixin, models.Model):
     community = models.ForeignKey(
         to=ReddemCommunity,
         on_delete=models.SET_NULL,
@@ -80,6 +97,37 @@ class Post(models.Model):
     )
 
     date_made = models.DateTimeField(auto_now_add=True)
+
+    def pk_and_slug_url_kwargs(self):
+        return {'pk_post': self.pk, 'slug_post': self.slug}
+
+    def details_post_absolute_url(self):
+        kwargs = ReddemCommunity.pk_and_slug_url_kwargs(self.community)
+
+        kwargs.update(self.pk_and_slug_url_kwargs())
+
+        return self.get_absolute_url('details post', kwargs)
+
+    def like_post_absolute_url(self):
+        kwargs = ReddemCommunity.pk_and_slug_url_kwargs(self.community)
+
+        kwargs.update(self.pk_and_slug_url_kwargs())
+
+        return self.get_absolute_url('like post', kwargs)
+
+    def dislike_post_absolute_url(self):
+        kwargs = ReddemCommunity.pk_and_slug_url_kwargs(self.community)
+
+        kwargs.update(self.pk_and_slug_url_kwargs())
+
+        return self.get_absolute_url('dislike post', kwargs)
+
+    def delete_post_absolute_url(self):
+        kwargs = ReddemCommunity.pk_and_slug_url_kwargs(self.community)
+
+        kwargs.update(self.pk_and_slug_url_kwargs())
+
+        return self.get_absolute_url('delete post', kwargs)
 
 
 class Comment(models.Model):
