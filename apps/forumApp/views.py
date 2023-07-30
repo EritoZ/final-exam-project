@@ -22,7 +22,7 @@ class BaseCommunityView:
 
 
 # Create your views here.
-class IndexView(custom_mixins.ReactionsContextMixin, generic.TemplateView):
+class IndexView(custom_mixins.VotesContextMixin, generic.TemplateView):
     template_name = 'common/index.html'
 
     def get_context_data(self, **kwargs):
@@ -30,7 +30,7 @@ class IndexView(custom_mixins.ReactionsContextMixin, generic.TemplateView):
             joined_community_posts = models.Post.objects \
                 .filter(community__reddemcommunitymembers__user=self.request.user)
 
-            kwargs['community_posts'] = joined_community_posts.order_by('-id')
+            kwargs['posts'] = joined_community_posts.order_by('-id')
 
         else:
             kwargs['community_posts'] = models.Post.objects.all().order_by('-id')
@@ -46,24 +46,19 @@ def create_post(request):
         form.instance.owner = request.user
         form.save()
 
-        models.LikesAndDislikes.objects.create(liked=True, liked_post=form.instance, owner=request.user)
+        models.UpvotesAndDownvotesPosts.objects.create(vote=1, voted_post=form.instance, owner=request.user)
 
         return redirect('index')
 
     return render(request, 'posts/create-post-page.html', context={'form': form})
 
 
-class PostDetailsAndCommentsView(BasePostView, generic.DetailView):
+class PostDetailsAndCommentsView(BasePostView, custom_mixins.VotesContextMixin, generic.DetailView):
     template_name = 'posts/details-post-page.html'
 
     def get_context_data(self, **kwargs):
-        likes = models.LikesAndDislikes.objects.filter(liked=True, liked_post=self.object)
-        dislikes = models.LikesAndDislikes.objects.filter(liked=False, liked_post=self.object)
 
-        kwargs['liked'] = likes.filter(owner=self.request.user.pk)
-        kwargs['disliked'] = dislikes.filter(owner=self.request.user.pk)
-
-        kwargs['likes_and_dislikes_count'] = likes.count() - dislikes.count()
+        kwargs['posts'] = (self.object,)
 
         kwargs['form'] = forms.CreateCommentForm()
 
@@ -121,11 +116,11 @@ class CommunitySearchView(BaseCommunityView, generic.ListView):
         return queryset
 
 
-class CommunityHomeView(BaseCommunityView, custom_mixins.ReactionsContextMixin, generic.DetailView):
+class CommunityHomeView(BaseCommunityView, custom_mixins.VotesContextMixin, generic.DetailView):
     template_name = 'communities/home-community-page.html'
 
     def get_context_data(self, **kwargs):
-        kwargs['community_posts'] = models.Post.objects.filter(community=self.object).order_by('-id')
+        kwargs['posts'] = models.Post.objects.filter(community=self.object).order_by('-id')
 
         kwargs['user_joined'] = models.ReddemCommunityMembers.objects.filter(user=self.request.user.pk,
                                                                              community=self.object).exists()
@@ -159,32 +154,32 @@ def community_leave(request, slug_community):
 
 
 @login_required
-def like(request, pk_post, slug_community, slug_post):
-    return react(request, pk_post, True)
+def upvote(request, pk_post, slug_community, slug_post):
+    return vote(request, pk_post, 1)
 
 
 @login_required
-def dislike(request, pk_post, slug_community, slug_post):
-    return react(request, pk_post, False)
+def downvote(request, pk_post, slug_community, slug_post):
+    return vote(request, pk_post, 0)
 
 
-def react(request, pk_post, liked: bool):
+def vote(request, pk_post, vote):
     found_post = models.Post.objects.get(pk=pk_post)
 
     previous_page = request.META.get('HTTP_REFERER')
 
     try:
-        found_reaction = models.LikesAndDislikes.objects.get(liked_post=found_post, owner=request.user)
+        found_vote = models.UpvotesAndDownvotesPosts.objects.get(voted_post=found_post, owner=request.user)
 
-        if found_reaction.liked == liked:
-            found_reaction.delete()
+        if found_vote.vote == vote:
+            found_vote.delete()
 
         else:
-            found_reaction.liked = liked
-            found_reaction.save()
+            found_vote.vote = vote
+            found_vote.save()
 
-    except models.LikesAndDislikes.DoesNotExist:
-        models.LikesAndDislikes.objects.create(liked=liked, liked_post=found_post, owner=request.user)
+    except models.UpvotesAndDownvotesPosts.DoesNotExist:
+        models.UpvotesAndDownvotesPosts.objects.create(vote=vote, voted_post=found_post, owner=request.user)
 
     if previous_page:
         return redirect(previous_page)

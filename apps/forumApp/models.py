@@ -108,19 +108,19 @@ class Post(custom_mixins.GetAbsoluteUrlMixin, models.Model):
 
         return self.get_absolute_url('details post', kwargs)
 
-    def like_post_absolute_url(self):
+    def upvote_post_absolute_url(self):
         kwargs = ReddemCommunity.pk_and_slug_url_kwargs(self.community)
 
         kwargs.update(self.pk_and_slug_url_kwargs())
 
-        return self.get_absolute_url('like post', kwargs)
+        return self.get_absolute_url('upvote post', kwargs)
 
-    def dislike_post_absolute_url(self):
+    def downvote_post_absolute_url(self):
         kwargs = ReddemCommunity.pk_and_slug_url_kwargs(self.community)
 
         kwargs.update(self.pk_and_slug_url_kwargs())
 
-        return self.get_absolute_url('dislike post', kwargs)
+        return self.get_absolute_url('downvote post', kwargs)
 
     def delete_post_absolute_url(self):
         kwargs = ReddemCommunity.pk_and_slug_url_kwargs(self.community)
@@ -150,10 +150,10 @@ class Comment(models.Model):
     date_made = models.DateTimeField(auto_now_add=True)
 
 
-class LikesAndDislikes(models.Model):
-    liked = models.BooleanField()
+class UpvotesAndDownvotesPosts(models.Model):
+    vote = models.IntegerField()
 
-    liked_post = models.ForeignKey(
+    voted_post = models.ForeignKey(
         to=Post,
         on_delete=models.SET_NULL,
         null=True

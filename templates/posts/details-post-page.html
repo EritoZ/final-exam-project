@@ -19,26 +19,28 @@
         <p>{{ post.description|wordwrap:100|linebreaksbr }}</p>
         <br>
 
-        <div class="reaction-section">
+        <div class="vote-section">
             <span>
-                {% if likes_and_dislikes_count == 1 %}
-                    {{ likes_and_dislikes_count }} like
+                {% if post.points_count == 1 %}
+                    {{ post.points_count }} upvote
+                {% elif post.points_count > 1 or post.points_count == 0 %}
+                    {{ post.points_count }} upvotes
                 {% else %}
-                    {{ likes_and_dislikes_count }} likes
+                    {{ post.points_count }} downvotes
                 {% endif %}
 
-                <a href="{{ post.like_post_absolute_url }}">
-                    {% if not liked %}
-                        Like
+                <a href="{{ post.upvote_post_absolute_url }}">
+                    {% if not post.upvoted %}
+                        Upvote
                     {% else %}
-                        Liked
+                        Unupvote
                     {% endif %}
                 </a>
-                <a href="{{ post.dislike_post_absolute_url }}">
-                    {% if not disliked %}
-                        Dislike
+                <a href="{{ post.downvote_post_absolute_url }}">
+                    {% if not post.downvoted %}
+                        Downvote
                     {% else %}
-                        Disliked
+                        Undownvote
                     {% endif %}
                 </a>
             </span>

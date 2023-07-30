@@ -1,6 +1,7 @@
 from abc import abstractmethod
 
 from django.urls import reverse
+from django.db import models as aggregate
 
 from apps.forumApp import models
 
@@ -12,17 +13,19 @@ class OwnerAddMixin:
         return super().form_valid(form)
 
 
-class ReactionsContextMixin:
+class VotesContextMixin:
 
     def get_context_data(self, **kwargs):
-        for post in kwargs['community_posts']:
-            likes = models.LikesAndDislikes.objects.filter(liked=True, liked_post=post)
-            dislikes = models.LikesAndDislikes.objects.filter(liked=False, liked_post=post)
 
-            post.liked = likes.filter(owner=self.request.user.pk)
-            post.disliked = dislikes.filter(owner=self.request.user.pk)
+        if 'posts' in kwargs:
+            for post in kwargs['posts']:
+                upvotes = models.UpvotesAndDownvotesPosts.objects.filter(vote=1, voted_post=post)
+                downvotes = models.UpvotesAndDownvotesPosts.objects.filter(vote=0, voted_post=post)
 
-            post.likes_and_dislikes_count = likes.count() - dislikes.count()
+                post.upvoted = upvotes.filter(owner=self.request.user.pk).exists()
+                post.downvoted = downvotes.filter(owner=self.request.user.pk).exists()
+
+                post.points_count = upvotes.count() - downvotes.count()
 
         return super().get_context_data(**kwargs)
 

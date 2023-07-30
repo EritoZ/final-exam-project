@@ -14,8 +14,8 @@ urlpatterns = [
 
         path('<int:pk_post>/<slug:slug_post>/', include([
             path('comments', views.PostDetailsAndCommentsView.as_view(), name='details post'),
-            path('like', views.like, name='like post'),
-            path('dislike', views.dislike, name='dislike post'),
+            path('upvote', views.upvote, name='upvote post'),
+            path('downvote', views.downvote, name='downvote post'),
             path('delete', views.PostDeleteView.as_view(), name='delete post')
         ]))
     ])),

@@ -11,6 +11,10 @@ User = get_user_model()
 
 # Create your views here.
 
+class BaseProfileView:
+    model = User
+
+
 class RegisterView(generic.CreateView):
     template_name = 'account/register-page.html'
     form_class = forms.UserCreateForm
@@ -32,14 +36,12 @@ class LogoutView(auth_views.LogoutView):
     pass
 
 
-class ProfileDetailsView(generic.DetailView):
+class ProfileDetailsView(BaseProfileView, generic.DetailView):
     template_name = 'account/details-profile-page.html'
-    model = User
 
 
-class ProfileEditView(generic.UpdateView):
+class ProfileEditView(BaseProfileView, generic.UpdateView):
     template_name = 'account/edit-profile-page.html'
-    model = User
     form_class = forms.UserEditForm
 
     def get_success_url(self):
