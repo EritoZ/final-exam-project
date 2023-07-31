@@ -6,7 +6,6 @@
 
 {% block content %}
 
-
     {% if object.profile_image %}
         <p>Profile picture:<img src="/media/{{ object.profile_image }}" alt="img8"></p>
     {% else %}
@@ -14,6 +13,7 @@
     {% endif %}
 
     <p>Username: {{ object.username }}</p>
+    <p>Karma: {{ total_karma }}</p>
     <p>First Name: {{ object.first_name }}</p>
     <p>Last Name: {{ object.last_name }}</p>
     <p>Gender: {{ object.get_gender_display }}</p>
@@ -25,5 +25,88 @@
         <a href="#">Change password</a>
     {% endif %}
 
+    <br>
+    <h3>8 most recent posts and comments:</h3>
+    {% for post_or_comment in user_posts_and_comments %}
+        ----------------------------------
+        {% if post_or_comment.title %}
+            <p>
+                {{ object.username }} posted on
+                <a href="{{ post_or_comment.community.home_community_absolute_url }}">
+                    r/{{ post_or_comment.community }}
+                </a>:
+            </p>
+            <div class="post">
+                <a href="{{ post_or_comment.details_post_absolute_url }}">
+                    <h5>{{ post_or_comment.title }}</h5>
+                </a>
+                <div class="vote-section">
+                    <span>
+                        {% if post_or_comment.points_count == 1 %}
+                            {{ post_or_comment.points_count }} upvote
+                        {% elif post_or_comment.points_count > 1 or post_or_comment.points_count == 0 %}
+                            {{ post_or_comment.points_count }} upvotes
+                        {% else %}
+                            {{ post_or_comment.points_count }} downvotes
+                        {% endif %}
+
+                        <a href="{{ post_or_comment.upvote_post_absolute_url }}">
+                            {% if not post_or_comment.upvoted %}
+                                Upvote
+                            {% else %}
+                                Unupvote
+                            {% endif %}
+                        </a>
+                        <a href="{{ post_or_comment.downvote_post_absolute_url }}">
+                            {% if not post.downvoted %}
+                                Downvote
+                            {% else %}
+                                Undownvote
+                            {% endif %}
+                        </a>
+                    </span>
+                </div>
+                <br>
+                <span>
+                    <a href="{{ post_or_comment.community.home_community_absolute_url }}">r/{{ post_or_comment.community }}</a>
+                    {{ post_or_comment.owner }}
+                    {{ post_or_comment.date_made|timesince }} ago
+                </span>
+                <br>
+
+                {% if post_or_comment.image %}
+                    <a href="{{ post_or_comment.details_post_absolute_url }}">
+                        <img src="/media/{{ post_or_comment.image }}" height="150" width="200" alt="img8">
+                    </a>
+                {% endif %}
+                <br>
+            </div>
+        {% else %}
+            <div class="comment">
+                <p>
+                    {{ object.username }} commented on
+                    <a href="{{ post_or_comment.commented_post.details_post_absolute_url }}">
+                        {{ post_or_comment.commented_post }}
+                    </a>:
+                </p>
+                <span>
+                    <p>{{ post_or_comment.owner }}</p>
+                    {{ post_or_comment.date_made|timesince }} ago
+                </span>
+
+                {% if post_or_comment.owner == post_or_comment.commented_post.owner %}
+                    <p class="original poster">Post owner</p>
+                {% endif %}
+
+                <div class="comment-description">
+                    <p>{{ post_or_comment.comment }}</p>
+                </div>
+            </div>
+
+        {% endif %}
+
+    {% empty %}
+        <p>No posts or comments.</p>
+    {% endfor %}
 
 {% endblock %}

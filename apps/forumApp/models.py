@@ -129,6 +129,9 @@ class Post(custom_mixins.GetAbsoluteUrlMixin, models.Model):
 
         return self.get_absolute_url('delete post', kwargs)
 
+    def __str__(self):
+        return self.title
+
 
 class Comment(models.Model):
     comment = models.CharField(

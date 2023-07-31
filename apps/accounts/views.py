@@ -5,6 +5,8 @@ from django.urls import reverse_lazy, reverse
 from django.views import generic
 
 from apps.accounts import forms
+from apps.forumApp import models as forum_models
+from custom_code import custom_mixins
 
 User = get_user_model()
 
@@ -36,8 +38,23 @@ class LogoutView(auth_views.LogoutView):
     pass
 
 
-class ProfileDetailsView(BaseProfileView, generic.DetailView):
+class ProfileDetailsView(BaseProfileView, custom_mixins.VotesContextMixin, generic.DetailView):
     template_name = 'account/details-profile-page.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['posts'] = forum_models.Post.objects.filter(owner=self.object)
+
+        mixin_result = super().get_context_data(**kwargs)
+
+        posts = tuple(mixin_result.get('posts')[:8])
+        total_karma = sum(post.points_count for post in posts)
+        comments = tuple(forum_models.Comment.objects.filter(owner=self.object)[:8])
+
+        user_posts_and_comments = sorted(posts + comments, key=lambda x: (x.date_made, x.id), reverse=True)
+
+        mixin_result.update({'user_posts_and_comments': user_posts_and_comments, 'total_karma': total_karma})
+
+        return mixin_result
 
 
 class ProfileEditView(BaseProfileView, generic.UpdateView):

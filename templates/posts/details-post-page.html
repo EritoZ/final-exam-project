@@ -71,17 +71,19 @@
     </div>
     <br>
     {% for comment in post_comments %}
-        <span>
-            <a href="{% url 'profile details' slug=comment.owner.slug %}">{{ comment.owner }}</a>
-            {{ comment.date_made|timesince }} ago
-        </span>
-
-        {% if comment.owner == post.owner %}
-            <p class="original poster">Post owner</p>
-        {% endif %}
-
         <div class="comment">
-            <p>{{ comment.comment }}</p>
+            <span>
+                <a href="{% url 'profile details' slug=comment.owner.slug %}">{{ comment.owner }}</a>
+                {{ comment.date_made|timesince }} ago
+            </span>
+
+            {% if comment.owner == post.owner %}
+                <p class="original poster">Post owner</p>
+            {% endif %}
+
+            <div class="comment-description">
+                <p>{{ comment.comment }}</p>
+            </div>
         </div>
     {% endfor %}
 {% endblock %}
