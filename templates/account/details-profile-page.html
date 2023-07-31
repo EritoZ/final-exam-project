@@ -86,7 +86,11 @@
                 <p>
                     {{ object.username }} commented on
                     <a href="{{ post_or_comment.commented_post.details_post_absolute_url }}">
-                        {{ post_or_comment.commented_post }}
+                        {% if post_or_comment.commented_post %}
+                            {{ post_or_comment.commented_post }}
+                        {% else %}
+                            [deleted]
+                        {% endif %}
                     </a>:
                 </p>
                 <span>
