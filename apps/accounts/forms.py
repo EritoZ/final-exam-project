@@ -17,8 +17,15 @@ class UserCreateForm(auth_forms.UserCreationForm):
 
 class UserEditForm(auth_forms.UserChangeForm):
     class Meta(BaseMeta):
-        fields = ('first_name', 'last_name', 'gender')
+        fields = ('first_name', 'last_name', 'email', 'gender')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields.pop('password')
+
+
+class UserPasswordChangeForm(auth_forms.PasswordChangeForm):
+    class Meta(BaseMeta):
+        fields = None
+
+

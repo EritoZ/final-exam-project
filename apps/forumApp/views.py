@@ -33,7 +33,7 @@ class IndexView(custom_mixins.VotesContextMixin, generic.TemplateView):
             kwargs['posts'] = joined_community_posts.order_by('-id')
 
         else:
-            kwargs['community_posts'] = models.Post.objects.all().order_by('-id')
+            kwargs['posts'] = models.Post.objects.all().order_by('-id')
 
         return super().get_context_data(**kwargs)
 

@@ -3,6 +3,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth import models as auth_models
 from django.urls import reverse_lazy, reverse
 from django.views import generic
+from django.contrib import messages
 
 from apps.accounts import forms
 from apps.forumApp import models as forum_models
@@ -67,3 +68,13 @@ class ProfileEditView(BaseProfileView, generic.UpdateView):
 
     def get_success_url(self):
         return reverse('profile details', kwargs={'slug': self.object.slug})
+
+
+class ProfileChangePasswordView(auth_views.PasswordChangeView):
+    template_name = 'account/change-password-page.html'
+    form_class = forms.UserPasswordChangeForm
+    success_url = reverse_lazy('password change success')
+
+
+class PasswordChangeSuccessView(generic.TemplateView):
+    template_name = 'account/success-change-password.html'

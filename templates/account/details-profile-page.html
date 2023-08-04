@@ -21,8 +21,7 @@
 
     {% if request.user == object %}
         <a href="{% url 'profile edit' slug=object.slug %}">Edit profile</a>
-        <a href="#">Change email</a>
-        <a href="#">Change password</a>
+        <a href="{% url 'change password' slug=object.slug %}">Change password</a>
     {% endif %}
 
     <br>
