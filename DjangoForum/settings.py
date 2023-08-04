@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'celery',
     'apps.accounts',
     'apps.forumApp',
 ]
@@ -136,10 +137,21 @@ MEDIA_ROOT = BASE_DIR / 'mediafiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Changed django user model
 AUTH_USER_MODEL = 'accounts.User'
 
+# Login and logout settings
 LOGIN_URL = reverse_lazy('login')
-
 LOGIN_REDIRECT_URL = reverse_lazy('index')
-
 LOGOUT_REDIRECT_URL = reverse_lazy('index')
+
+# Celery stuff
+CELERY_BROKER_URL = 'redis://localhost:6379'
+
+# Email stuff
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'your-smtp-server.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'my-email@example.com'
+EMAIL_HOST_PASSWORD = 'my-password'

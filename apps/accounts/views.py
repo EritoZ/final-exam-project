@@ -29,6 +29,10 @@ class RegisterView(generic.CreateView):
 
         return result
 
+# TODO: Make confirmation email
+# def email_confirmation(request, form):
+#
+
 
 class LoginView(auth_views.LoginView):
     template_name = 'account/login-page.html'
