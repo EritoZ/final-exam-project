@@ -73,7 +73,9 @@ class ProfileEditView(BaseProfileView, generic.UpdateView):
 class ProfileChangePasswordView(auth_views.PasswordChangeView):
     template_name = 'account/change-password-page.html'
     form_class = forms.UserPasswordChangeForm
-    success_url = reverse_lazy('password change success')
+
+    def get_success_url(self):
+        return reverse('password change success', kwargs={'slug': self.request.user.slug})
 
 
 class PasswordChangeSuccessView(generic.TemplateView):
