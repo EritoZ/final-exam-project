@@ -146,12 +146,13 @@ LOGIN_REDIRECT_URL = reverse_lazy('index')
 LOGOUT_REDIRECT_URL = reverse_lazy('index')
 
 # Celery stuff
-CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://default:KJyf6YGUYTK9A74cdeXVhINfGSw2AXjt@redis-15203.c135.eu-central-1-1.ec2.cloud.redislabs.com:15203'
 
 # Email stuff
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'your-smtp-server.com'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'my-email@example.com'
-EMAIL_HOST_PASSWORD = 'my-password'
+EMAIL_HOST_USER = 'moni.grozdev.jp@gmail.com'
+EMAIL_HOST_PASSWORD = 'fkepfoheeafhocoe'
+

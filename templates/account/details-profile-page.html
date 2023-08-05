@@ -5,6 +5,14 @@
 {% endblock %}
 
 {% block content %}
+    {% if messages %}
+        ------------------------------------------------------------
+        {% for message in messages %}
+            <h3>{{ message }}</h3>
+        {% endfor %}
+        ------------------------------------------------------------
+    {% endif %}
+
 
     {% if object.profile_image %}
         <p>Profile picture:<img src="/media/{{ object.profile_image }}" alt="img8"></p>

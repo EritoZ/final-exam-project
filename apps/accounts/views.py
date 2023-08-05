@@ -1,11 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import models as auth_models
+from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic
 from django.contrib import messages
 
 from apps.accounts import forms
+from apps.accounts.tasks import send_email
 from apps.forumApp import models as forum_models
 from custom_code import custom_mixins
 
@@ -24,15 +27,39 @@ class RegisterView(generic.CreateView):
     success_url = reverse_lazy('login')
 
     def form_valid(self, form):
+        form.instance.is_active = False
         result = super().form_valid(form)
 
         auth_models.Group.objects.get(name='regular_user_group').user_set.add(self.object)
 
+        token = default_token_generator.make_token(self.object)
+        url = self.request.build_absolute_uri(
+            f"{reverse_lazy('email confirmation', kwargs={'pk': self.object.id, 'token': token})}"
+        )
+
+        send_email.delay(url, self.object.id)
+        messages.success(self.request, 'Check your email for a confirmation mail.')
+
         return result
 
-# TODO: Make confirmation email
-# def email_confirmation(request, form):
-#
+
+# TODO: Make token to be one time use
+def email_confirmation(request, pk, token):
+    try:
+
+        user = User.objects.get(id=pk)
+
+        if default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            messages.success(request, 'Account made successfully!')
+            return redirect('login')
+
+    except User.DoesNotExist:
+        pass
+
+    messages.error(request, 'Confirmation link is invalid.')
+    return redirect('index')
 
 
 class LoginView(auth_views.LoginView):
@@ -75,8 +102,6 @@ class ProfileChangePasswordView(auth_views.PasswordChangeView):
     form_class = forms.UserPasswordChangeForm
 
     def get_success_url(self):
-        return reverse('password change success', kwargs={'slug': self.request.user.slug})
+        messages.success(self.request, 'Successfully changed password')
 
-
-class PasswordChangeSuccessView(generic.TemplateView):
-    template_name = 'account/success-change-password.html'
+        return reverse('profile details', kwargs={'slug': self.request.user.slug})
