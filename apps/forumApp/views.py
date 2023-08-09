@@ -33,7 +33,7 @@ class IndexView(custom_mixins.VotesContextMixin, generic.TemplateView):
             kwargs['posts'] = joined_community_posts.order_by('-id')
 
         else:
-            kwargs['posts'] = models.Post.objects.all().order_by('-id')
+            kwargs['posts'] = models.Post.objects.order_by('-id')
 
         return super().get_context_data(**kwargs)
 
@@ -77,17 +77,31 @@ class PostDetailsAndCommentsView(BasePostView, custom_mixins.VotesContextMixin, 
             form.instance.owner = self.request.user
             form.save()
 
-            return redirect('details post',
-                            slug_community=self.kwargs['slug_community'], slug_post=self.kwargs['slug_post'])
+            return redirect(self.get_object().details_post_absolute_url())
 
         return render(request, self.template_name)
 
 
-class PostDeleteView(BasePostView, generic.DeleteView):
+class PostDeleteView(custom_mixins.DataAccessControlMixin, BasePostView, generic.DeleteView):
     template_name = 'posts/delete-post-page.html'
 
     def get_success_url(self):
         return reverse('profile details', kwargs={'slug': self.request.user.slug})
+
+
+class CommentDeleteView(custom_mixins.DataAccessControlMixin, generic.DeleteView):
+    model = models.Comment
+
+    def get(self, request, *args, **kwargs):
+        return self.delete(request)
+
+    def get_success_url(self):
+        previous_page = self.request.META.get('HTTP_REFERER')
+
+        if previous_page:
+            return previous_page
+
+        return redirect('index')
 
 
 class CommunityCreateView(mixins.LoginRequiredMixin, custom_mixins.OwnerAddMixin, generic.CreateView):
@@ -130,7 +144,7 @@ class CommunityHomeView(BaseCommunityView, custom_mixins.VotesContextMixin, gene
         return super().get_context_data(**kwargs)
 
 
-class CommunityEditView(BaseCommunityView, generic.UpdateView):
+class CommunityEditView(custom_mixins.DataAccessControlMixin, BaseCommunityView, generic.UpdateView):
     template_name = 'communities/edit-community-page.html'
     form_class = forms.EditReddemCommunityForm
 

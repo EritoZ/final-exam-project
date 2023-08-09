@@ -1,7 +1,6 @@
 from celery import shared_task
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
-from django.urls import reverse_lazy
 
 from DjangoForum import settings
 

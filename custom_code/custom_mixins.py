@@ -1,5 +1,6 @@
 from abc import abstractmethod
 
+from django.contrib.auth import mixins
 from django.urls import reverse
 from django.db import models as aggregate
 
@@ -11,6 +12,26 @@ class OwnerAddMixin:
         form.instance.owner = self.request.user
 
         return super().form_valid(form)
+
+
+class DataAccessControlMixin(mixins.UserPassesTestMixin):
+    permission_required = (None,)
+
+    def test_func(self):
+        """
+        You can modify this func based on your needs.
+        :return:
+        """
+
+        if not self.request.user.is_authenticated:
+            return False
+
+        obj = self.get_object()
+
+        if hasattr(obj, 'owner'):
+            obj = obj.owner
+
+        return self.request.user == obj or self.request.user.has_perms(self.permission_required)
 
 
 class VotesContextMixin:

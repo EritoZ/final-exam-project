@@ -8,6 +8,10 @@ User = get_user_model()
 
 
 class ReddemCommunity(custom_mixins.GetAbsoluteUrlMixin, models.Model):
+
+    class Meta:
+        verbose_name_plural = 'Reddem communities'
+
     image = models.ImageField(
         upload_to='CommunityImages'
     )
@@ -53,6 +57,10 @@ class ReddemCommunity(custom_mixins.GetAbsoluteUrlMixin, models.Model):
 
 
 class ReddemCommunityMembers(models.Model):
+
+    class Meta:
+        verbose_name_plural = 'Reddem community members'
+
     user = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE
@@ -152,8 +160,15 @@ class Comment(models.Model):
 
     date_made = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return 'Comment'
+
 
 class UpvotesAndDownvotesPosts(models.Model):
+
+    class Meta:
+        verbose_name_plural = 'Upvotes and downvotes - posts'
+
     vote = models.IntegerField()
 
     voted_post = models.ForeignKey(
@@ -167,3 +182,6 @@ class UpvotesAndDownvotesPosts(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
+
+    def __str__(self):
+        return 'Upvote' if self.vote == 1 else 'Downvote'

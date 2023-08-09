@@ -77,9 +77,15 @@
                 {{ comment.date_made|timesince }} ago
             </span>
 
-            {% if comment.owner == post.owner %}
-                <p class="original poster">Post owner</p>
-            {% endif %}
+            <span>
+                {% if comment.owner == comment.commented_post.owner %}
+                    Post owner
+                {% endif %}
+
+                {% if comment.owner == request.user %}
+                    <a href="{% url 'delete comment' comment.pk %}">Delete</a>
+                {% endif %}
+            </span>
 
             <div class="comment-description">
                 <p>{{ comment.comment }}</p>

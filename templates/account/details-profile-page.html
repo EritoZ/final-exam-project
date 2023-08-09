@@ -27,7 +27,7 @@
     <p>Gender: {{ object.get_gender_display }}</p>
     <p>Email: {{ object.email }}</p>
 
-    {% if request.user == object %}
+    {% if request.user == object or user_can_change_user %}
         <a href="{% url 'profile edit' slug=object.slug %}">Edit profile</a>
         <a href="{% url 'change password' slug=object.slug %}">Change password</a>
     {% endif %}
@@ -100,14 +100,18 @@
                         {% endif %}
                     </a>:
                 </p>
-                <span>
-                    <p>{{ post_or_comment.owner }}</p>
-                    {{ post_or_comment.date_made|timesince }} ago
-                </span>
 
-                {% if post_or_comment.owner == post_or_comment.commented_post.owner %}
-                    <p class="original poster">Post owner</p>
-                {% endif %}
+                <span>
+                    {{ post_or_comment.date_made|timesince }} ago
+
+                    {% if post_or_comment.owner == post_or_comment.commented_post.owner %}
+                        Post owner
+                    {% endif %}
+
+                    {% if post_or_comment.owner == request.user %}
+                        <a href="{% url 'delete comment' post_or_comment.pk %}">Delete</a>
+                    {% endif %}
+                </span>
 
                 <div class="comment-description">
                     <p>{{ post_or_comment.comment }}</p>

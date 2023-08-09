@@ -75,6 +75,7 @@ class ProfileDetailsView(BaseProfileView, custom_mixins.VotesContextMixin, gener
 
     def get_context_data(self, **kwargs):
         kwargs['posts'] = forum_models.Post.objects.filter(owner=self.object)
+        kwargs['user_can_change_user'] = self.request.user.has_perm('Can change user')
 
         mixin_result = super().get_context_data(**kwargs)
 
@@ -89,17 +90,19 @@ class ProfileDetailsView(BaseProfileView, custom_mixins.VotesContextMixin, gener
         return mixin_result
 
 
-class ProfileEditView(BaseProfileView, generic.UpdateView):
+class ProfileEditView(custom_mixins.DataAccessControlMixin, BaseProfileView, generic.UpdateView):
     template_name = 'account/edit-profile-page.html'
     form_class = forms.UserEditForm
+    permission_required = ('Can change user',)
 
     def get_success_url(self):
         return reverse('profile details', kwargs={'slug': self.object.slug})
 
 
-class ProfileChangePasswordView(auth_views.PasswordChangeView):
+class ProfileChangePasswordView(custom_mixins.DataAccessControlMixin, auth_views.PasswordChangeView):
     template_name = 'account/change-password-page.html'
     form_class = forms.UserPasswordChangeForm
+    permission_required = ('Can change user',)
 
     def get_success_url(self):
         messages.success(self.request, 'Successfully changed password')
