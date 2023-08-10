@@ -2,8 +2,6 @@ from abc import abstractmethod
 
 from django.contrib.auth import mixins
 from django.urls import reverse
-from django.db import models as aggregate
-
 from apps.forumApp import models
 
 

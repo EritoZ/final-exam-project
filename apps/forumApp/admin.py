@@ -11,9 +11,14 @@ class ReddemCommunityAdmin(admin.ModelAdmin):
 
 @admin.register(ReddemCommunityMembers)
 class ReddemCommunityMembersAdmin(admin.ModelAdmin):
-    list_display = ['user', 'community']
+    list_display = ['user', 'community_owner', 'community']
     search_fields = ['user__username', 'community__title']
     list_filter = ['user', 'community']
+
+    def community_owner(self, obj):
+        return True if obj.user == obj.community.owner else False
+
+    community_owner.boolean = True
 
 
 @admin.register(Post)

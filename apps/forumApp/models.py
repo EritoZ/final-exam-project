@@ -53,7 +53,7 @@ class ReddemCommunity(custom_mixins.GetAbsoluteUrlMixin, models.Model):
         return self.get_absolute_url('leave community', self.pk_and_slug_url_kwargs())
 
     def __str__(self):
-        return self.title
+        return 'Community'
 
 
 class ReddemCommunityMembers(models.Model):
@@ -70,6 +70,9 @@ class ReddemCommunityMembers(models.Model):
         to=ReddemCommunity,
         on_delete=models.CASCADE
     )
+
+    def __str__(self):
+        return 'Community member'
 
 
 # Create your models here.
@@ -138,7 +141,7 @@ class Post(custom_mixins.GetAbsoluteUrlMixin, models.Model):
         return self.get_absolute_url('delete post', kwargs)
 
     def __str__(self):
-        return self.title
+        return 'Post'
 
 
 class Comment(models.Model):
