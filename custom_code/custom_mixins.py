@@ -15,23 +15,33 @@ class OwnerAddMixin:
 
 
 class DataAccessControlMixin(mixins.UserPassesTestMixin):
-    permission_required = (None,)
+    permission_required = None
 
     def test_func(self):
+
         """
-        You can modify this func based on your needs.
-        :return:
+        Modify this function if your view doesn't have self.object.
         """
 
         if not self.request.user.is_authenticated:
             return False
 
-        obj = self.get_object()
+        try:
+            obj = self.get_object()
+
+        except AttributeError:
+            obj = self.object
 
         if hasattr(obj, 'owner'):
             obj = obj.owner
 
-        return self.request.user == obj or self.request.user.has_perms(self.permission_required)
+        if obj == self.request.user:
+            return True
+
+        if self.permission_required:
+            return self.request.user.has_perms(self.permission_required)
+
+        return False
 
 
 class VotesContextMixin:

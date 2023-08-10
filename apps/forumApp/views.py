@@ -154,14 +154,14 @@ class CommunityEditView(custom_mixins.DataAccessControlMixin, BaseCommunityView,
 
 @login_required
 def community_join(request, slug_community):
-    current_community = get_object_or_404(klass=models.ReddemCommunity, pk=slug_community)
+    current_community = get_object_or_404(klass=models.ReddemCommunity, slug=slug_community)
     models.ReddemCommunityMembers.objects.create(community=current_community, user=request.user)
 
     return redirect('home community', slug_community=slug_community)
 
 
 def community_leave(request, slug_community):
-    current_community = get_object_or_404(klass=models.ReddemCommunity, pk=slug_community)
+    current_community = get_object_or_404(klass=models.ReddemCommunity, slug=slug_community)
     models.ReddemCommunityMembers.objects.filter(community=current_community, user=request.user.pk).delete()
 
     return redirect('home community', slug_community=slug_community)

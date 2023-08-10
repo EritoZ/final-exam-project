@@ -27,7 +27,7 @@
     <p>Gender: {{ object.get_gender_display }}</p>
     <p>Email: {{ object.email }}</p>
 
-    {% if request.user == object or user_can_change_user %}
+    {% if request.user == object %}
         <a href="{% url 'profile edit' slug=object.slug %}">Edit profile</a>
         <a href="{% url 'change password' slug=object.slug %}">Change password</a>
     {% endif %}

@@ -99,7 +99,7 @@ class ProfileEditView(custom_mixins.DataAccessControlMixin, BaseProfileView, gen
         return reverse('profile details', kwargs={'slug': self.object.slug})
 
 
-class ProfileChangePasswordView(custom_mixins.DataAccessControlMixin, auth_views.PasswordChangeView):
+class ProfileChangePasswordView(auth_views.PasswordChangeView):
     template_name = 'account/change-password-page.html'
     form_class = forms.UserPasswordChangeForm
     permission_required = ('Can change user',)
