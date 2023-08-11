@@ -30,7 +30,7 @@ class DataAccessControlMixin(mixins.UserPassesTestMixin):
         except AttributeError:
             obj = self.object
 
-        if hasattr(obj, 'owner'):
+        if hasattr(obj, 'owner_id'):
             obj = obj.owner
 
         if obj == self.request.user:
